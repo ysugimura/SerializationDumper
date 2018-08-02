@@ -1,4 +1,4 @@
-package nb.deser.support;
+package com.cm55.deser.support;
 
 /***********************************************************
  * Support class for serialization data parsing that holds

@@ -1,12 +1,12 @@
-package nb.deser;
+package com.cm55.deser;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import nb.deser.support.ClassDataDesc;
-import nb.deser.support.ClassDetails;
-import nb.deser.support.ClassField;
+import java.util.stream.*;
+
+import com.cm55.deser.support.*;
 
 /***********************************************************
  * Helper program to dump a hex-ascii encoded serialization
@@ -18,7 +18,8 @@ public class SerializationDumper {
 	/*******************
 	 * Properties
 	 ******************/
-	private final LinkedList<Byte> _data;								//The data being parsed
+	private LinkedList<Byte> _data;								//The data being parsed
+	private static final int INDENT_SIZE = 1;
 	private String _indent;												//A string representing the current indentation level for output printing
 	private int _handleValue;											//The current handle value
 	private final ArrayList<ClassDataDesc> _classDataDescriptions;		//Array of all class data descriptions to use with TC_REFERENCE classDesc elements
@@ -93,6 +94,13 @@ public class SerializationDumper {
 		this._classDataDescriptions = new ArrayList<ClassDataDesc>();
 	}
 	
+	public void setBytes(byte[]bytes) {
+	  this._data = new LinkedList<Byte>();
+	  for (byte b: bytes) {
+	    this._data.add(b);
+	  }
+	}
+	
 	/*******************
 	 * Print the given string using the current indentation.
 	 * 
@@ -106,16 +114,16 @@ public class SerializationDumper {
 	 * Increase the indentation string.
 	 ******************/
 	private void increaseIndent() {
-		this._indent = this._indent + "  ";
+	  IntStream.range(0, INDENT_SIZE).forEach(i->this._indent += " ");
 	}
 	
 	/*******************
 	 * Decrease the indentation string or trigger an exception if the length is
-	 * already below 2.
+	 * already below INDENT_SIZE.
 	 ******************/
 	private void decreaseIndent() {
-		if(this._indent.length() < 2) { throw new RuntimeException("Error: Illegal indentation decrease."); }
-		this._indent = this._indent.substring(0, this._indent.length() - 2);
+		if(this._indent.length() < INDENT_SIZE) { throw new RuntimeException("Error: Illegal indentation decrease."); }
+		this._indent = this._indent.substring(0, this._indent.length() - INDENT_SIZE);
 	}
 	
 	/*******************
@@ -158,7 +166,7 @@ public class SerializationDumper {
 	/*******************
 	 * Parse the given serialization stream and dump the details out as text.
 	 ******************/
-	private void parseStream() throws Exception {
+	public void parseStream() throws Exception {
 		byte b1, b2;
 		
 		//The stream may begin with an RMI packet type byte, print it if so
